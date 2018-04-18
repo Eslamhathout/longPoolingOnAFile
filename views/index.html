@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="../jquery-3.1.1.js"></script>
+  </head>
+  <body>
+
+    <br>
+    <h2>The File Content is: </h2>
+    <textarea id="fileCont" name="content" rows="4" cols="50"></textarea>
+
+
+    <script>
+      var lastmod = 0;
+//Long pooling hna 3la al file 3lshan lo fyh t8yrat f al file yshofha
+      function doLongPolling() {
+          $.ajax({
+              type: "GET",
+              url: "http://localhost:9090/updates",
+              data: {lastmod: lastmod},
+              success: function (response) {
+                  lastmod = response.lastmod;
+                  console.log(response.content);
+                  $("textarea#fileCont").val(response.content);
+                  setTimeout(doLongPolling, 1000);
+              }
+          });
+      }
+      doLongPolling();
+
+    $( "#fileCont" ).keyup(function() {
+      $.ajax({
+        url: "http://localhost:9090/save",
+        type: 'POST',
+        data: {textcontent: $("textarea#fileCont").val() },
+        success: function (response) {
+            console.log(response.content);
+        }
+      })
+    });
+  </script>
+
+
+  </body>
+</html>
